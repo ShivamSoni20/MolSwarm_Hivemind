@@ -1,31 +1,58 @@
-import { SuiClient as MystenSuiClient, getFullnodeUrl } from '@mysten/sui/client';
+import { SuiJsonRpcClient as MystenSuiClient } from '@mysten/sui/jsonRpc';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { Transaction } from '@mysten/sui/transactions';
+import { decodeSuiPrivateKey } from '@mysten/sui/cryptography';
 import dotenv from 'dotenv';
+import path from 'path';
 
-dotenv.config({ path: '../.env' });
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 export class SuiWrapper {
     private client: MystenSuiClient;
     private keypair: Ed25519Keypair | null = null;
     private packageId: string;
 
-    constructor() {
-        const network = (process.env.SUI_NETWORK as 'testnet' | 'mainnet' | 'devnet') || 'testnet';
-        this.client = new MystenSuiClient({ url: getFullnodeUrl(network) });
+    constructor(privateKeyOverride?: string) {
+        const rpcUrl = process.env.SUI_NETWORK === 'mainnet'
+            ? "https://fullnode.mainnet.sui.io:443"
+            : "https://fullnode.testnet.sui.io:443";
+
+        const network = (process.env.SUI_NETWORK as any) || 'testnet';
+        this.client = new MystenSuiClient({
+            url: rpcUrl,
+            network: network
+        });
         this.packageId = process.env.PACKAGE_ID || '';
 
-        const privateKey = process.env.SUI_PRIVATE_KEY;
+        const privateKey = privateKeyOverride || process.env.SUI_PRIVATE_KEY;
         if (privateKey) {
-            this.keypair = Ed25519Keypair.fromSecretKey(Buffer.from(privateKey, 'base64'));
+            try {
+                const decoded = decodeSuiPrivateKey(privateKey);
+                this.keypair = Ed25519Keypair.fromSecretKey(decoded.secretKey);
+            } catch (e) {
+                try {
+                    this.keypair = Ed25519Keypair.fromSecretKey(Buffer.from(privateKey, 'base64'));
+                } catch (err) {
+                    console.error("Failed to decode private key:", err);
+                }
+            }
         }
+    }
+
+    getWalletAddress(): string {
+        return this.keypair ? this.keypair.getPublicKey().toSuiAddress() : '0x...';
     }
 
     async postJob(amount: number, description: string, deadline: number) {
         if (!this.keypair) throw new Error('No keypair configured');
 
         const tx = new Transaction();
-        const [coin] = tx.splitCoins(tx.gas, [amount * 1_000_000_000]); // Convert to MIST
+        const [coin] = tx.splitCoins(tx.gas, [amount * 1_000_000_000]); // Use literal number or BigInt
 
         tx.moveCall({
             target: `${this.packageId}::escrow::post_job`,
@@ -39,9 +66,15 @@ export class SuiWrapper {
         const result = await this.client.signAndExecuteTransaction({
             signer: this.keypair,
             transaction: tx,
+            options: {
+                showEvents: true,
+            }
         });
 
-        return result;
+        const event = result.events?.find(e => e.type.endsWith('::JobPosted'));
+        const jobId = (event?.parsedJson as any)?.job_id;
+
+        return { digest: result.digest, jobId };
     }
 
     async acceptJob(jobId: string) {
@@ -97,5 +130,40 @@ export class SuiWrapper {
             id: jobId,
             options: { showContent: true }
         });
+    }
+
+    async getOpenJobs() {
+        if (!this.packageId) return [];
+
+        try {
+            const events = await this.client.queryEvents({
+                query: { MoveEventType: `${this.packageId}::escrow::JobPosted` }
+            });
+
+            const jobIds = events.data.map(event => (event.parsedJson as any).job_id);
+            if (jobIds.length === 0) return [];
+
+            const objects = await this.client.multiGetObjects({
+                ids: jobIds,
+                options: { showContent: true }
+            });
+
+            return objects.map(obj => {
+                const fields = (obj.data?.content as any)?.fields;
+                if (!fields) return null;
+
+                return {
+                    id: obj.data?.objectId as string,
+                    description: fields.description,
+                    payment: parseInt(fields.payment?.fields?.balance || "0") / 1_000_000_000,
+                    status: fields.status,
+                    poster: fields.poster,
+                    worker: fields.worker?.fields?.contents
+                };
+            }).filter(job => job !== null && job.status === 0);
+        } catch (error) {
+            console.error("Discovery Error:", error);
+            return [];
+        }
     }
 }

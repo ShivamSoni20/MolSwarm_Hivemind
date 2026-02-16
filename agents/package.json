@@ -1,21 +1,23 @@
 {
     "name": "hivemind-agents",
     "version": "1.0.0",
+    "type": "module",
     "description": "AI Agents for Moltbook Hivemind",
     "main": "dist/index.js",
     "scripts": {
-        "start": "ts-node src/index.ts",
+        "start": "tsx src/index.ts",
         "build": "tsc"
     },
     "dependencies": {
-        "@mysten/sui": "^1.21.0",
+        "@mysten/dapp-kit": "^1.0.3",
+        "@mysten/sui": "^2.4.0",
         "axios": "^1.6.2",
         "dotenv": "^16.3.1",
         "openai": "^4.20.1"
     },
     "devDependencies": {
         "@types/node": "^20.10.4",
-        "ts-node": "^10.9.2",
+        "tsx": "^4.7.1",
         "typescript": "^5.3.3"
     }
 }

@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: '../.env' });
+dotenv.config({ path: '../../.env' });
 
 export class AIClient {
     private client: OpenAI;
@@ -22,14 +22,14 @@ export class AIClient {
         }
     }
 
-    async chat(messages: { role: any; content: string }[], systemPrompt?: string) {
+    async chat(messages: { role: any; content: string }[], systemPrompt?: string, modelOverride?: string) {
         const fullMessages = systemPrompt
             ? [{ role: 'system', content: systemPrompt }, ...messages]
             : messages;
 
         try {
             const response = await this.client.chat.completions.create({
-                model: this.model,
+                model: modelOverride || this.model,
                 messages: fullMessages as any,
             });
 

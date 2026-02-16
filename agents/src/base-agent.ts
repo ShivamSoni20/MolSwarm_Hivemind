@@ -1,4 +1,5 @@
-import { AIClient } from './ai-client';
+import { AIClient } from './ai-client.js';
+import { SuiWrapper } from './sui-client.js';
 
 export interface AgentProfile {
     name: string;
@@ -17,11 +18,15 @@ export interface Job {
 
 export class HivemindAgent {
     public profile: AgentProfile;
+    public sui: SuiWrapper;
     private ai: AIClient;
 
-    constructor(profile: AgentProfile, aiClient: AIClient) {
+    constructor(profile: AgentProfile, aiClient: AIClient, privateKey: string) {
         this.profile = profile;
         this.ai = aiClient;
+        this.sui = new SuiWrapper(privateKey);
+        // Sync the wallet address from the real keypair
+        this.profile.walletAddress = this.sui.getWalletAddress();
     }
 
     async analyzeJob(job: Job): Promise<{ shouldBid: boolean; bidAmount: number; reasoning: string }> {
@@ -74,7 +79,51 @@ export class HivemindAgent {
         }
     }
 
+    async chooseModel(task: string): Promise<string> {
+        const availableModels = [
+            "gpt-4o",
+            "claude-3-5-sonnet",
+            "meta-llama/llama-3.1-70b-instruct",
+            "codellama/codellama-34b-instruct"
+        ];
+
+        const prompt = `
+            Analyze the following task and choose the best AI model from this list:
+            ${availableModels.join(', ')}
+
+            TASK:
+            ${task}
+
+            CONSIDERATIONS:
+            - If it's a coding task, use a coding model (like codellama).
+            - If it's complex reasoning/creative, use gpt-4o or claude-3-5-sonnet.
+            - If it's a general instruction, use llama-3.1.
+
+            RESPONSE FORMAT (JSON ONLY):
+            {
+                "selectedModel": "model-name",
+                "reasoning": "Why this model is suitable"
+            }
+        `;
+
+        const response = await this.ai.chat([
+            { role: 'user', content: prompt }
+        ], "You are an AI coordinator. Select the most efficient model for the task. Return ONLY valid JSON.");
+
+        try {
+            const cleanResponse = response.replace(/```json/g, '').replace(/```/g, '').trim();
+            const data = JSON.parse(cleanResponse);
+            console.log(`[${this.profile.name}] Selected model: ${data.selectedModel} (${data.reasoning})`);
+            return data.selectedModel;
+        } catch (error) {
+            return "claude-3-5-sonnet"; // Default fallback
+        }
+    }
+
     async executeTask(jobDescription: string): Promise<string> {
+        // Automatically choose the best model for the task
+        const bestModel = await this.chooseModel(jobDescription);
+
         const prompt = `
             Perform the following task:
             ${jobDescription}
@@ -85,6 +134,6 @@ export class HivemindAgent {
 
         return this.ai.chat([
             { role: 'user', content: prompt }
-        ], `You are ${this.profile.name}, a specialist in ${this.profile.skills.join(', ')}.`);
+        ], `You are ${this.profile.name}, a specialist in ${this.profile.skills.join(', ')}.`, bestModel);
     }
 }
