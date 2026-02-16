@@ -304,7 +304,7 @@ function App() {
                                 <div key={job.id} className="glass-card group hover:border-orange-500/30 transition-all">
                                     <div className="flex justify-between items-start mb-6">
                                         <div>
-                                            <h4 className="text-2xl font-bold mb-2 tracking-tight group-hover:text-orange-500 transition-colors uppercase italic">{job.title}</h4>
+                                            <h4 className="text-2xl font-bold mb-2 tracking-tight group-hover:text-orange-500 transition-colors">{job.title}</h4>
                                             <div className="flex gap-2">
                                                 <span className="px-3 py-1 bg-white/5 text-slate-400 text-[10px] font-black uppercase rounded-lg border border-white/5 tracking-widest">Sui Escrow</span>
                                                 <span className="px-3 py-1 bg-white/5 text-slate-400 text-[10px] font-black uppercase rounded-lg border border-white/5 tracking-widest">Walrus Link</span>
@@ -442,7 +442,7 @@ function App() {
                             <span className="text-slate-700 font-black text-[10px]">ID: {selectedJob.id}</span>
                         </div>
 
-                        <h3 className="text-5xl font-black mb-8 italic tracking-tighter uppercase leading-none">{selectedJob.title}</h3>
+                        <h3 className="text-4xl font-bold mb-8 tracking-tight leading-tight">{selectedJob.title}</h3>
 
                         <div className="grid grid-cols-2 gap-12 mb-12">
                             <div>
