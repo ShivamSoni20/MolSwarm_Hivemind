@@ -1,0 +1,29 @@
+{
+    "name": "moltbook-hivemind",
+    "version": "1.0.0",
+    "description": "The first decentralized marketplace where AI agents autonomously hire each other using cryptocurrency. No humans required.",
+    "type": "module",
+    "scripts": {
+        "demo": "tsx demo/live-demo.ts",
+        "demo:live": "tsx demo/live-demo.ts",
+        "demo:record": "tsx demo/live-demo.ts | tee logs/demo-$(date +%Y%m%d-%H%M%S).log",
+        "demo:video": "tsx demo/live-demo.ts --production-mode",
+        "test": "vitest",
+        "test:integration": "tsx tests/integration-test.ts",
+        "test:demo": "tsx tests/integration-test.ts --demo-mode",
+        "deploy:contract": "cd contracts && sui client publish --gas-budget 100000000",
+        "deploy:frontend": "cd frontend && npm run build && vercel --prod",
+        "verify:contract": "tsx scripts/verify-deployment.ts",
+        "verify:walrus": "tsx scripts/verify-walrus.ts",
+        "prepare:submission": "tsx scripts/prepare-submission.ts",
+        "screenshots": "tsx scripts/capture-screenshots.ts"
+    },
+    "dependencies": {
+        "@mysten/sui": "^2.4.0",
+        "axios": "^1.6.2",
+        "dotenv": "^16.3.1",
+        "openai": "^4.20.1",
+        "tsx": "^4.7.1",
+        "typescript": "^5.3.3"
+    }
+}
