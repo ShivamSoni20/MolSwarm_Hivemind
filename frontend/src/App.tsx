@@ -2,6 +2,7 @@ import { ConnectButton, useCurrentAccount, useSuiClientQuery, useSignAndExecuteT
 import { Brain, Cpu, Database, LayoutDashboard, Plus, Terminal, Activity, X, Globe, FileCode, HardDrive, Github, Twitter, MessageSquare, ExternalLink, ShieldCheck, ChevronRight } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { Transaction } from '@mysten/sui/transactions';
+import { MetricsDashboard } from './components/MetricsDashboard';
 
 const PACKAGE_ID = "0xda07651147386ae5bf932cdacc23718ddcd9f44fb00bc13344eacebfe99e5648";
 
@@ -297,131 +298,135 @@ function App() {
                     </button>
                 </header>
 
-                <div className="max-w-7xl mx-auto">
-                    {activeTab === 'marketplace' && (
-                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                            {jobs.map((job) => (
-                                <div key={job.id} className="glass-card group hover:border-orange-500/30 transition-all">
-                                    <div className="flex justify-between items-start mb-6">
-                                        <div>
-                                            <h4 className="text-2xl font-bold mb-2 tracking-tight group-hover:text-orange-500 transition-colors">{job.title}</h4>
-                                            <div className="flex gap-2">
-                                                <span className="px-3 py-1 bg-white/5 text-slate-400 text-[10px] font-black uppercase rounded-lg border border-white/5 tracking-widest">Sui Escrow</span>
-                                                <span className="px-3 py-1 bg-white/5 text-slate-400 text-[10px] font-black uppercase rounded-lg border border-white/5 tracking-widest">Walrus Link</span>
+                <div className="max-w-7xl mx-auto space-y-12">
+                    <MetricsDashboard />
+
+                    <div className="w-full">
+                        {activeTab === 'marketplace' && (
+                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                                {jobs.map((job: any) => (
+                                    <div key={job.id} className="glass-card group hover:border-orange-500/30 transition-all">
+                                        <div className="flex justify-between items-start mb-6">
+                                            <div>
+                                                <h4 className="text-2xl font-bold mb-2 tracking-tight group-hover:text-orange-500 transition-colors">{job.title}</h4>
+                                                <div className="flex gap-2">
+                                                    <span className="px-3 py-1 bg-white/5 text-slate-400 text-[10px] font-black uppercase rounded-lg border border-white/5 tracking-widest">Sui Escrow</span>
+                                                    <span className="px-3 py-1 bg-white/5 text-slate-400 text-[10px] font-black uppercase rounded-lg border border-white/5 tracking-widest">Walrus Link</span>
+                                                </div>
+                                            </div>
+                                            <div className="text-right flex flex-col items-end">
+                                                <div className="text-3xl font-black text-white">{job.bounty}</div>
+                                                <div className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Bounty Amount</div>
                                             </div>
                                         </div>
-                                        <div className="text-right flex flex-col items-end">
-                                            <div className="text-3xl font-black text-white">{job.bounty}</div>
-                                            <div className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Bounty Amount</div>
-                                        </div>
-                                    </div>
 
-                                    <div className="space-y-4 mb-8">
-                                        <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
-                                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Assigned Agent</span>
-                                            <span className="text-sm font-bold text-orange-400 font-mono tracking-tighter italic">{job.worker}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
-                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</span>
-                                            <div className="flex items-center gap-2">
-                                                <div className={`w-2 h-2 rounded-full ${job.status === 'Open' ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)] animate-pulse' : 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]'}`} />
-                                                <span className="text-xs font-black text-slate-100 uppercase italic tracking-tighter">{job.status}</span>
+                                        <div className="space-y-4 mb-8">
+                                            <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Assigned Agent</span>
+                                                <span className="text-sm font-bold text-orange-400 font-mono tracking-tighter italic">{job.worker}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</span>
+                                                <div className="flex items-center gap-2">
+                                                    <div className={`w-2 h-2 rounded-full ${job.status === 'Open' ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)] animate-pulse' : 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]'}`} />
+                                                    <span className="text-xs font-black text-slate-100 uppercase italic tracking-tighter">{job.status}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div className="flex gap-4">
-                                        <button
-                                            onClick={() => setSelectedJob(job)}
-                                            className="flex-grow py-4 glass rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-white/10 transition-all border-white/10"
-                                        >
-                                            View Details
-                                        </button>
-                                        {job.status === 'Delivered' && (
+                                        <div className="flex gap-4">
                                             <button
-                                                onClick={() => handleReleasePayment(job.id)}
-                                                className="px-8 py-4 bg-green-500 hover:bg-green-600 rounded-2xl text-xs font-black uppercase tracking-widest text-white transition-all shadow-lg shadow-green-500/20"
+                                                onClick={() => setSelectedJob(job)}
+                                                className="flex-grow py-4 glass rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-white/10 transition-all border-white/10"
                                             >
-                                                Release Payment
+                                                View Details
                                             </button>
-                                        )}
+                                            {job.status === 'Delivered' && (
+                                                <button
+                                                    onClick={() => handleReleasePayment(job.id)}
+                                                    className="px-8 py-4 bg-green-500 hover:bg-green-600 rounded-2xl text-xs font-black uppercase tracking-widest text-white transition-all shadow-lg shadow-green-500/20"
+                                                >
+                                                    Release Payment
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                                ))}
+                            </div>
+                        )}
 
-                    {activeTab === 'agents' && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            {[
-                                { name: 'PythonPro', icon: Terminal, color: 'text-blue-400', rate: '0.1 SUI/hr', tag: 'Data Science' },
-                                { name: 'MediaMaster', icon: Globe, color: 'text-purple-400', rate: '0.2 SUI/hr', tag: 'Visual AI' },
-                                { name: 'QuickBot', icon: Cpu, color: 'text-orange-400', rate: '0.05 SUI/hr', tag: 'Automation' }
-                            ].map((agent) => (
-                                <div key={agent.name} className="glass-card text-center group">
-                                    <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center border border-white/10 group-hover:border-orange-500/30 transition-all mx-auto mb-6 shadow-2xl">
-                                        <agent.icon className={`w-8 h-8 ${agent.color}`} />
+                        {activeTab === 'agents' && (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                {[
+                                    { name: 'PythonPro', icon: Terminal, color: 'text-blue-400', rate: '0.1 SUI/hr', tag: 'Data Science' },
+                                    { name: 'MediaMaster', icon: Globe, color: 'text-purple-400', rate: '0.2 SUI/hr', tag: 'Visual AI' },
+                                    { name: 'QuickBot', icon: Cpu, color: 'text-orange-400', rate: '0.05 SUI/hr', tag: 'Automation' }
+                                ].map((agent) => (
+                                    <div key={agent.name} className="glass-card text-center group">
+                                        <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center border border-white/10 group-hover:border-orange-500/30 transition-all mx-auto mb-6 shadow-2xl">
+                                            <agent.icon className={`w-8 h-8 ${agent.color}`} />
+                                        </div>
+                                        <h4 className="text-2xl font-black mb-1 uppercase italic">{agent.name}</h4>
+                                        <div className="flex items-center justify-center gap-1.5 mb-6">
+                                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(34,197,94,1)]" />
+                                            <span className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold">Online</span>
+                                        </div>
+                                        <div className="space-y-3 bg-white/5 p-4 rounded-2xl border border-white/5 mb-6 font-mono text-left text-[10px] text-slate-500">
+                                            <div>&gt; STATUS: {agent.name === 'PythonPro' ? 'READY' : 'POLLING'}</div>
+                                            <div>&gt; MODEL: CL-3.5-SONNET</div>
+                                            <div>&gt; RATE: {agent.rate}</div>
+                                        </div>
+                                        <span className="px-8 py-2 glass rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400">{agent.tag}</span>
                                     </div>
-                                    <h4 className="text-2xl font-black mb-1 uppercase italic">{agent.name}</h4>
-                                    <div className="flex items-center justify-center gap-1.5 mb-6">
-                                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(34,197,94,1)]" />
-                                        <span className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold">Online</span>
-                                    </div>
-                                    <div className="space-y-3 bg-white/5 p-4 rounded-2xl border border-white/5 mb-6 font-mono text-left text-[10px] text-slate-500">
-                                        <div>&gt; STATUS: {agent.name === 'PythonPro' ? 'READY' : 'POLLING'}</div>
-                                        <div>&gt; MODEL: CL-3.5-SONNET</div>
-                                        <div>&gt; RATE: {agent.rate}</div>
-                                    </div>
-                                    <span className="px-8 py-2 glass rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400">{agent.tag}</span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                                ))}
+                            </div>
+                        )}
 
-                    {activeTab === 'walrus' && (
-                        <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-500">
-                            <div className="glass-card p-12 text-center bg-grid border-white/10 group relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500 opacity-50" />
-                                <Database className="w-16 h-16 text-blue-500 mx-auto mb-6 group-hover:scale-110 transition-transform duration-500" />
-                                <h3 className="text-4xl font-bold mb-4 uppercase tracking-tighter italic">Walrus Storage</h3>
-                                <p className="text-slate-400 text-lg max-w-xl mx-auto font-medium leading-relaxed">
-                                    Secure, decentralized task delivery. Every agent output is hashed, uploaded to Walrus storage, and linked permanently to the bounty escrow.
-                                </p>
-                                <div className="mt-12 inline-flex gap-8">
-                                    <div className="text-center">
-                                        <div className="text-3xl font-black text-white">402</div>
-                                        <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Blobs Stored</div>
-                                    </div>
-                                    <div className="w-px h-12 bg-white/5" />
-                                    <div className="text-center">
-                                        <div className="text-3xl font-black text-white">99.9%</div>
-                                        <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Persistence</div>
+                        {activeTab === 'walrus' && (
+                            <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-500">
+                                <div className="glass-card p-12 text-center bg-grid border-white/10 group relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500 opacity-50" />
+                                    <Database className="w-16 h-16 text-blue-500 mx-auto mb-6 group-hover:scale-110 transition-transform duration-500" />
+                                    <h3 className="text-4xl font-bold mb-4 uppercase tracking-tighter italic">Walrus Storage</h3>
+                                    <p className="text-slate-400 text-lg max-w-xl mx-auto font-medium leading-relaxed">
+                                        Secure, decentralized task delivery. Every agent output is hashed, uploaded to Walrus storage, and linked permanently to the bounty escrow.
+                                    </p>
+                                    <div className="mt-12 inline-flex gap-8">
+                                        <div className="text-center">
+                                            <div className="text-3xl font-black text-white">402</div>
+                                            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Blobs Stored</div>
+                                        </div>
+                                        <div className="w-px h-12 bg-white/5" />
+                                        <div className="text-center">
+                                            <div className="text-3xl font-black text-white">99.9%</div>
+                                            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Persistence</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    {activeTab === 'activity' && (
-                        <div className="max-w-3xl mx-auto space-y-4">
-                            {[
-                                { time: '2 mins ago', icon: Activity, text: 'Agent QuickBot started bidding on bounty: 0x5fd4...a76e', color: 'text-orange-400', bg: 'bg-orange-400/10' },
-                                { time: '15 mins ago', icon: ShieldCheck, text: 'New bounty published to Sui Testnet by 0x7dd4...0a8c', color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
-                                { time: '1 hour ago', icon: Database, text: 'Deliverable for Data Scraping uploaded to Walrus Blob ID: fQ1W...DMA', color: 'text-blue-400', bg: 'bg-blue-400/10' }
-                            ].map((log, i) => (
-                                <div key={i} className="glass-card flex gap-6 items-center p-5 border-white/5 group hover:border-white/20 transition-all">
-                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${log.bg}`}>
-                                        <log.icon className={`w-5 h-5 ${log.color}`} />
+                        {activeTab === 'activity' && (
+                            <div className="max-w-3xl mx-auto space-y-4">
+                                {[
+                                    { time: '2 mins ago', icon: Activity, text: 'Agent QuickBot started bidding on bounty: 0x5fd4...a76e', color: 'text-orange-400', bg: 'bg-orange-400/10' },
+                                    { time: '15 mins ago', icon: ShieldCheck, text: 'New bounty published to Sui Testnet by 0x7dd4...0a8c', color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
+                                    { time: '1 hour ago', icon: Database, text: 'Deliverable for Data Scraping uploaded to Walrus Blob ID: fQ1W...DMA', color: 'text-blue-400', bg: 'bg-blue-400/10' }
+                                ].map((log, i) => (
+                                    <div key={i} className="glass-card flex gap-6 items-center p-5 border-white/5 group hover:border-white/20 transition-all">
+                                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${log.bg}`}>
+                                            <log.icon className={`w-5 h-5 ${log.color}`} />
+                                        </div>
+                                        <div className="flex-grow">
+                                            <p className="text-sm font-bold text-slate-200 uppercase italic tracking-tighter">{log.text}</p>
+                                            <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">{log.time}</p>
+                                        </div>
+                                        <ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-white transition-colors" />
                                     </div>
-                                    <div className="flex-grow">
-                                        <p className="text-sm font-bold text-slate-200 uppercase italic tracking-tighter">{log.text}</p>
-                                        <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">{log.time}</p>
-                                    </div>
-                                    <ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-white transition-colors" />
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </main>
 
