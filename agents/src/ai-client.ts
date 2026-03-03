@@ -10,12 +10,14 @@ export class AIClient {
     constructor() {
         const apiKey = process.env.AI_ML_API_KEY || '';
         const baseURL = process.env.AI_ML_API_URL || 'https://api.aimlapi.com/v1';
-        this.model = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20240620';
+        this.model = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet';
 
         this.client = new OpenAI({
             apiKey: apiKey,
             baseURL: baseURL,
         });
+
+        console.log(`🤖 AI Client Initialized. Model: ${this.model} | BaseURL: ${baseURL}`);
 
         if (!apiKey) {
             console.warn('AI_ML_API_KEY is not set in .env');
