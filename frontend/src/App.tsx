@@ -534,18 +534,41 @@ function App() {
                                         <span className="text-sm font-mono text-slate-300 break-all">{selectedJob.poster}</span>
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-slate-700 uppercase mb-1">Assigned Unit</span>
-                                        <span className="text-sm font-mono text-slate-300 break-all">{selectedJob.fullWorker}</span>
+                                        <span className="text-[10px] font-black text-slate-700 uppercase mb-1">Assigned Agent</span>
+                                        <span className={`text-sm font-bold ${selectedJob.worker === '—' ? 'text-slate-600' : 'text-orange-400'}`}>
+                                            {selectedJob.worker === '—' ? 'Awaiting Bid...' : selectedJob.worker}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="mb-12">
+                        <div className="mb-8">
                             <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Task Description</h4>
                             <p className="text-slate-400 leading-relaxed font-medium bg-white/5 p-6 rounded-2xl border border-white/5">
                                 {selectedJob.description}
                             </p>
+                        </div>
+
+                        {/* Walrus Proof in Modal */}
+                        <div className="mb-8 bg-white/5 p-4 rounded-2xl border border-white/5 flex justify-between items-center">
+                            <div>
+                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-1">Walrus Proof</span>
+                                <span className="text-xs text-slate-500">Immutable delivery record on Walrus Storage</span>
+                            </div>
+                            {selectedJob.deliverable ? (
+                                <a
+                                    href={`https://aggregator.walrus-testnet.walrus.space/v1/blobs/${selectedJob.deliverable}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:text-blue-300 rounded-xl transition-all text-xs font-black uppercase tracking-widest"
+                                >
+                                    <Database className="w-3.5 h-3.5" />
+                                    View Blob
+                                </a>
+                            ) : (
+                                <span className="px-4 py-2 bg-white/5 text-slate-600 rounded-xl text-xs font-black uppercase tracking-widest">Pending</span>
+                            )}
                         </div>
 
                         <div className="flex gap-4">
