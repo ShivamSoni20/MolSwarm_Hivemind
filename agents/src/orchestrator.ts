@@ -14,7 +14,8 @@ const SLEEP_MS = 15000; // Poll every 15 seconds
 async function runOrchestrator() {
     console.log("🚀 Moltbook Hivemind Swarm Orchestrator Starting...");
 
-    const sui = new SuiWrapper();
+    const agentKey = process.env.AGENT_PYTHON_KEY || process.env.SUI_PRIVATE_KEY || '';
+    const sui = new SuiWrapper(agentKey);
     const walrus = new WalrusClient();
     const ai = new AIClient();
 

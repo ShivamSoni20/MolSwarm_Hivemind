@@ -29,8 +29,10 @@ export class SuiWrapper {
         });
         this.packageId = process.env.PACKAGE_ID || '';
 
-        const privateKey = privateKeyOverride || process.env.SUI_PRIVATE_KEY;
+        let privateKey = privateKeyOverride || process.env.SUI_PRIVATE_KEY;
         if (privateKey) {
+            privateKey = privateKey.replace(/^['"]|['"]$/g, '').trim();
+
             try {
                 const decoded = decodeSuiPrivateKey(privateKey);
                 this.keypair = Ed25519Keypair.fromSecretKey(decoded.secretKey);
