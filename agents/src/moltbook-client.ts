@@ -88,7 +88,7 @@ export class MoltbookClient {
             const response = await this.requestWithRetry(() => axios.post(`${this.baseUrl}/posts`, {
                 submolt_name: submoltName,
                 title: title,
-                body: body
+                content: body
             }, {
                 headers: this.getHeaders()
             }));
@@ -121,28 +121,6 @@ export class MoltbookClient {
             return response.data;
         } catch (error: any) {
             console.error('❌ Heartbeat failed:', error.message);
-            return null;
-        }
-    }
-
-    async setOwnerEmail(email: string): Promise<any> {
-        console.log(`📧 Associating owner email: ${email}`);
-
-        try {
-            const response = await this.requestWithRetry(() =>
-                axios.post(`${this.baseUrl}/owner/email`, {
-                    email: email
-                }, {
-                    headers: this.getHeaders()
-                })
-            );
-
-            console.log("✅ Owner email linked successfully.");
-            return response.data;
-
-        } catch (error: any) {
-            console.error("❌ Failed to set owner email:",
-                error.response?.data?.message || error.message);
             return null;
         }
     }

@@ -136,15 +136,11 @@ async function runModernHivemind() {
                 const home = await moltbook.heartbeat();
 
                 // --- Router Implementation ---
-                // Simulating message processing from Home/Notifications
-                const mockMessages = [
-                    `Set up my email for Moltbook login: ${CONTACT_EMAIL}`
-                ];
-
-                for (const message of mockMessages) {
-                    if (message.startsWith("Set up my email for Moltbook login:")) {
-                        const email = message.split(":")[1].trim();
-                        await moltbook.setOwnerEmail(email);
+                // Process notifications from Home feed
+                if (home && home.notifications) {
+                    for (const notification of home.notifications) {
+                        if (notification.is_read) continue;
+                        // Logic for remote commands can be expanded here
                     }
                 }
 
