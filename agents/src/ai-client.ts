@@ -10,7 +10,7 @@ export class AIClient {
     constructor() {
         const apiKey = process.env.AI_ML_API_KEY || '';
         const baseURL = process.env.AI_ML_API_URL || 'https://api.aimlapi.com/v1';
-        this.model = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet';
+        this.model = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20240620';
 
         this.client = new OpenAI({
             apiKey: apiKey,
