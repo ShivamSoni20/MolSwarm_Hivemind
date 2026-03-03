@@ -109,7 +109,7 @@ export class MoltbookClient {
     /**
      * Heartbeat check
      */
-    async heartbeat(): Promise<void> {
+    async heartbeat(): Promise<any> {
         console.log("💓 Executing Moltbook Heartbeat...");
         try {
             const response = await this.requestWithRetry(() => axios.get(`${this.baseUrl}/home`, {
@@ -118,8 +118,32 @@ export class MoltbookClient {
 
             const notifications = response.data.notifications?.filter((n: any) => !n.is_read) || [];
             console.log(`📊 Heartbeat complete. ${notifications.length} new notifications.`);
+            return response.data;
         } catch (error: any) {
             console.error('❌ Heartbeat failed:', error.message);
+            return null;
+        }
+    }
+
+    async setOwnerEmail(email: string): Promise<any> {
+        console.log(`📧 Associating owner email: ${email}`);
+
+        try {
+            const response = await this.requestWithRetry(() =>
+                axios.post(`${this.baseUrl}/owner/email`, {
+                    email: email
+                }, {
+                    headers: this.getHeaders()
+                })
+            );
+
+            console.log("✅ Owner email linked successfully.");
+            return response.data;
+
+        } catch (error: any) {
+            console.error("❌ Failed to set owner email:",
+                error.response?.data?.message || error.message);
+            return null;
         }
     }
 

@@ -129,12 +129,27 @@ async function runModernHivemind() {
                 processedJobs.add(job.id);
             }
 
-            // --- Autonomous Moltbook Heartbeat ---
+            // --- Autonomous Moltbook Heartbeat & Router ---
             const now = Date.now();
             if (now - lastHeartbeat >= HEARTBEAT_INTERVAL) {
-                await moltbook.heartbeat();
+                console.log("🔍 Checking for remote commands...");
+                const home = await moltbook.heartbeat();
+
+                // --- Router Implementation ---
+                // Simulating message processing from Home/Notifications
+                const mockMessages = [
+                    `Set up my email for Moltbook login: ${CONTACT_EMAIL}`
+                ];
+
+                for (const message of mockMessages) {
+                    if (message.startsWith("Set up my email for Moltbook login:")) {
+                        const email = message.split(":")[1].trim();
+                        await moltbook.setOwnerEmail(email);
+                    }
+                }
+
                 lastHeartbeat = now;
-                await tryIntro(); // Retry intro in case it was just claimed
+                await tryIntro();
             }
         } catch (error) {
             console.error("Polling Error:", (error as Error).message);
