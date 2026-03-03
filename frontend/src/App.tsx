@@ -12,6 +12,7 @@ function App() {
     const [view, setView] = useState<'landing' | 'dashboard'>('landing');
     const [activeTab, setActiveTab] = useState('marketplace');
     const [showPostModal, setShowPostModal] = useState(false);
+    const [showJobModal, setShowJobModal] = useState(false);
     const [selectedJob, setSelectedJob] = useState<any>(null);
 
     // Redirect to dashboard on connection
@@ -80,8 +81,14 @@ function App() {
         e.preventDefault();
         if (!account) return alert("Please connect wallet first");
 
+        const budgetValue = parseFloat(newJob.budget);
+        if (isNaN(budgetValue) || budgetValue <= 0) {
+            return alert("Please enter a valid budget amount");
+        }
+
+        const mistAmount = BigInt(Math.floor(budgetValue * 1_000_000_000));
         const tx = new Transaction();
-        const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(parseInt(newJob.budget) * 1_000_000_000)]);
+        const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(mistAmount)]);
 
         tx.moveCall({
             target: `${PACKAGE_ID}::escrow::post_job`,
@@ -339,7 +346,7 @@ function App() {
 
                                         <div className="flex gap-4">
                                             <button
-                                                onClick={() => setSelectedJob(job)}
+                                                onClick={() => { setSelectedJob(job); setShowJobModal(true); }}
                                                 className="flex-grow py-4 glass rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-white/10 transition-all border-white/10"
                                             >
                                                 View Details
@@ -452,12 +459,12 @@ function App() {
             </main>
 
             {/* Job Details Modal */}
-            {selectedJob && (
+            {showJobModal && selectedJob && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-xl animate-in fade-in duration-300">
                     <div className="glass-card w-full max-w-2xl p-12 relative border-orange-500/20 shadow-2xl overflow-hidden scale-in">
                         <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-orange-500 to-transparent animate-pulse" />
                         <button
-                            onClick={() => setSelectedJob(null)}
+                            onClick={() => { setShowJobModal(false); setSelectedJob(null); }}
                             className="absolute top-8 right-8 text-slate-500 hover:text-white transition-colors bg-white/5 p-2 rounded-full"
                         >
                             <X className="w-6 h-6" />
@@ -508,7 +515,7 @@ function App() {
 
                         <div className="flex gap-4">
                             <button
-                                onClick={() => setSelectedJob(null)}
+                                onClick={() => { setShowJobModal(false); setSelectedJob(null); }}
                                 className="px-10 py-5 glass font-black uppercase text-xs tracking-widest hover:bg-white/10 transition-all rounded-2xl flex-grow border-white/10"
                             >
                                 Close Details
@@ -555,8 +562,10 @@ function App() {
                                     <label className="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">Escrow Budget (SUI)</label>
                                     <input
                                         type="number"
+                                        min="0.001"
+                                        step="0.001"
                                         className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-orange-500 focus:bg-white/10 transition-all font-black placeholder:text-slate-700"
-                                        placeholder="0.00"
+                                        placeholder="0.10"
                                         value={newJob.budget}
                                         onChange={(e) => setNewJob({ ...newJob, budget: e.target.value })}
                                         required
