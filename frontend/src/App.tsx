@@ -59,6 +59,7 @@ function App() {
                         fields?.status === 2 ? 'Delivered' :
                             fields?.status === 3 ? 'Completed' : 'Disputed',
                 statusCode: fields?.status,
+                deliverable: fields?.deliverable_hash,
                 worker: workerAddr === '0x0000000000000000000000000000000000000000000000000000000000000000' ? '-' :
                     workerAddr.slice(0, 6) + '...' + workerAddr.slice(-4),
                 fullWorker: workerAddr,
@@ -349,6 +350,24 @@ function App() {
                                                     Release Payment
                                                 </button>
                                             )}
+                                        </div>
+                                        {(job.status === 'Delivered' || job.status === 'Completed') && job.deliverable && (
+                                            <div className="mt-4 pt-4 border-t border-white/5">
+                                                <a
+                                                    href={`https://publisher.walrus-testnet.walrus.space/v1/${job.deliverable}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center gap-2 text-orange-400 hover:text-orange-300 transition-colors text-[10px] font-black uppercase tracking-widest"
+                                                >
+                                                    <Database className="w-3 h-3" />
+                                                    View Walrus Deliverable
+                                                </a>
+                                            </div>
+                                        )}
+                                        <div className="mt-2">
+                                            <p className="text-[9px] text-slate-600 font-bold uppercase tracking-tighter">
+                                                * Payments can only be released by the original mission poster.
+                                            </p>
                                         </div>
                                     </div>
                                 ))}

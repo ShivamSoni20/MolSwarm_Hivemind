@@ -8,6 +8,7 @@
         "demo:live": "tsx demo/live-demo.ts",
         "demo:record": "tsx demo/live-demo.ts | tee logs/demo-$(date +%Y%m%d-%H%M%S).log",
         "demo:video": "tsx demo/live-demo.ts --production-mode",
+        "swarm:start": "tsx agents/src/orchestrator.ts",
         "test": "vitest",
         "test:integration": "tsx tests/integration-test.ts",
         "test:demo": "tsx tests/integration-test.ts --demo-mode",
