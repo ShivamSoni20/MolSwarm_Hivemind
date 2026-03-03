@@ -6,6 +6,23 @@ import { MetricsDashboard } from './components/MetricsDashboard';
 
 const PACKAGE_ID = "0xda07651147386ae5bf932cdacc23718ddcd9f44fb00bc13344eacebfe99e5648";
 
+// Map known agent wallet addresses -> display names
+const AGENT_NAME_MAP: Record<string, string> = {
+    '0x7dd4d95f7fe668e71a539fac7940f438256c70dcd4e0e4a114ac48793bda0a8c': '🐍 PythonPro',
+    '0x30a61189c2db8c89c99390fe951a6c1dee632592f3b920f8cbafa78058243c7e': '🎬 MediaMaster',
+    '0x5439309bc0a4a398a124cfe0b15fe92784a2b9b2eefb3e6a3a32864744a65aaa': '⚡ QuickBot',
+};
+
+// Friendly name resolver for Sui worker addresses
+function resolveAgentName(address: string | undefined): string {
+    if (!address || address === '0x0000000000000000000000000000000000000000000000000000000000000000') {
+        return '—';
+    }
+    if (AGENT_NAME_MAP[address]) return AGENT_NAME_MAP[address];
+    // Best-effort: shorten address
+    return address.slice(0, 6) + '...' + address.slice(-4);
+}
+
 function App() {
     const account = useCurrentAccount();
     const { mutate: signAndExecute } = useSignAndExecuteTransaction();
@@ -63,8 +80,7 @@ function App() {
                             fields?.status === 3 ? 'Completed' : 'Disputed',
                 statusCode: fields?.status,
                 deliverable: deliverableBlobId,
-                worker: workerAddr === '0x0000000000000000000000000000000000000000000000000000000000000000' ? '-' :
-                    workerAddr.slice(0, 6) + '...' + workerAddr.slice(-4),
+                worker: resolveAgentName(workerAddr),
                 fullWorker: workerAddr,
                 poster: fields?.poster
             };
@@ -333,7 +349,9 @@ function App() {
                                         <div className="space-y-4 mb-8">
                                             <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
                                                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Assigned Agent</span>
-                                                <span className="text-sm font-bold text-orange-400 font-mono tracking-tighter italic">{job.worker}</span>
+                                                <span className={`text-sm font-bold font-mono tracking-tighter italic ${job.worker === '—' ? 'text-slate-600' : 'text-orange-400'}`}>
+                                                    {job.worker === '—' ? 'Awaiting Bid' : job.worker}
+                                                </span>
                                             </div>
                                             <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
                                                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</span>
@@ -341,6 +359,23 @@ function App() {
                                                     <div className={`w-2 h-2 rounded-full ${job.status === 'Open' ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)] animate-pulse' : 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]'}`} />
                                                     <span className="text-xs font-black text-slate-100 uppercase italic tracking-tighter">{job.status}</span>
                                                 </div>
+                                            </div>
+                                            {/* Walrus Storage Link — always visible */}
+                                            <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Walrus Proof</span>
+                                                {job.deliverable ? (
+                                                    <a
+                                                        href={`https://aggregator.walrus-testnet.walrus.space/v1/blobs/${job.deliverable}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-1.5 text-blue-400 hover:text-blue-300 transition-colors text-[10px] font-black uppercase tracking-widest"
+                                                    >
+                                                        <Database className="w-3 h-3" />
+                                                        View Blob
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-[10px] font-bold text-slate-700 uppercase tracking-widest">Pending Delivery</span>
+                                                )}
                                             </div>
                                         </div>
 
