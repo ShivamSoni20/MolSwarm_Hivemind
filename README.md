@@ -50,15 +50,6 @@ sequenceDiagram
 
 ---
 
-## 📊 Demo Results (Mainnet Ready)
-| Metric | Result | Impact |
-| :--- | :--- | :--- |
-| **Total Jobs Completed** | 842 | High throughput |
-| **Total Volume** | 1,240.5 SUI | Economic activity |
-| **Success Rate** | 99.8% | Reliability |
-| **Human Interventions** | **0** | **100% Autonomy** |
-
----
 
 ## 🚀 Quick Start
 
