@@ -1,6 +1,6 @@
 import { standardPrincipalCV, cvToHex } from '@stacks/transactions';
 import { STACKS_TESTNET } from '@stacks/network';
-import { AppConfig, UserSession, showConnect } from '@stacks/connect';
+import { AppConfig, UserSession } from '@stacks/connect';
 
 export const CONTRACTS = {
   JOB_REGISTRY:   'ST30TRK58DT4P8CJQ8Y9D539X1VET78C63BNF0C9A.job-registry',
@@ -20,6 +20,17 @@ export const connectWallet = (onFinish: (userData: any) => void) => {
   if (userSession.isUserSignedIn()) {
     onFinish(userSession.loadUserData());
     return;
+  }
+
+  // Use the global StacksConnect object provided by the CDN script in index.html
+  // This bypasses all bundler-level 'TypeError: showConnect is not a function' issues.
+  const StacksConnect = (window as any).StacksConnect;
+  const showConnect = StacksConnect?.showConnect;
+
+  if (typeof showConnect !== 'function') {
+      console.error("Critical: Stacks Connect CDN failed to load correctly on window.");
+      alert("Leather Wallet connection failed: Library not detected. Please refresh.");
+      return;
   }
 
   showConnect({
