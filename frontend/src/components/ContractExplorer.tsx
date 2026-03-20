@@ -14,7 +14,7 @@ const ContractExplorer: React.FC = () => {
     fetchJobs();
     const interval = setInterval(fetchJobs, 30000);
 
-    const cleanup = subscribeToContractEvents(CONTRACTS.JOB_REGISTRY.split('.')[0], (event) => {
+    const cleanup = subscribeToContractEvents(CONTRACTS.JOB_REGISTRY.split('.')[0], (event: any) => {
         setEvents(prev => [{
             txid: event.tx_id,
             name: event.tx_type,

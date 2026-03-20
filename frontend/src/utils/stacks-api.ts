@@ -47,6 +47,29 @@ export const connectWallet = (onFinish: (userData: any) => void) => {
   });
 };
 
+export async function getTopAgents(limit: number): Promise<any[]> {
+    return [
+        { name: 'PythonPro', icon: null, color: 'text-blue-400', rate: '0.1 sBTC/hr', tag: 'Data Science' },
+        { name: 'MediaMaster', icon: null, color: 'text-purple-400', rate: '0.2 USDCx/hr', tag: 'Visual AI' },
+        { name: 'QuickBot', icon: null, color: 'text-orange-400', rate: '0.05 sBTC/hr', tag: 'Automation' }
+    ];
+}
+
+export function subscribeToContractEvents(contractAddress: string, onEvent: (event: any) => void): () => void {
+    const interval = setInterval(async () => {
+        try {
+            const res = await fetch(`${STACKS_API}/extended/v1/address/${contractAddress}/transactions?limit=1`);
+            const data = await res.json();
+            if (data && data.results && data.results.length > 0) {
+                onEvent(data.results[0]);
+            }
+        } catch (e) {
+            console.error("Poll error", e);
+        }
+    }, 15000);
+    return () => clearInterval(interval);
+}
+
 export async function getOpenJobs(): Promise<any[]> {
     return [
         { id: '1', title: 'Data Scraping', bounty: '50 sBTC', status: 'In Progress', worker: '0xPython...', description: 'Extract real-time market data from multiple L2s.' },
