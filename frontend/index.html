@@ -15,10 +15,7 @@
       window.global = window;
       window.process = { env: {} };
     </script>
-    <script type="module">
-      import { showConnect, AppConfig, UserSession } from 'https://esm.sh/@stacks/connect@8.2.6';
-      window.StacksConnect = { showConnect, AppConfig, UserSession };
-    </script>
+    <script src="https://connect.stacks.js.org/connect.js"></script>
   </head>
   <body>
     <div id="root"></div>

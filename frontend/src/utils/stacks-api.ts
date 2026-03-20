@@ -22,14 +22,13 @@ export const connectWallet = (onFinish: (userData: any) => void) => {
     return;
   }
 
-  // Use the global StacksConnect object provided by the CDN script in index.html
-  // This bypasses all bundler-level 'TypeError: showConnect is not a function' issues.
-  const StacksConnect = (window as any).StacksConnect;
-  const showConnect = StacksConnect?.showConnect;
+  // Hiro's official connect.js bundle provides StacksConnect or showConnect globally.
+  const win = window as any;
+  const showConnect = win.StacksConnect?.showConnect || win.HiroConnect?.showConnect || win.showConnect;
 
   if (typeof showConnect !== 'function') {
-      console.error("Critical: Stacks Connect CDN failed to load correctly on window.");
-      alert("Leather Wallet connection failed: Library not detected. Please refresh.");
+      console.error("Critical: Stacks Connect library (connect.js) not found on window.");
+      alert("Leather Wallet connection failed: Please ensure the Leather extension is active and refresh the page.");
       return;
   }
 
