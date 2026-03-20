@@ -1,6 +1,6 @@
 import { standardPrincipalCV, cvToHex } from '@stacks/transactions';
 import { STACKS_TESTNET } from '@stacks/network';
-import { AppConfig, UserSession } from '@stacks/connect';
+import { AppConfig, UserSession, showConnect } from '@stacks/connect';
 
 export const CONTRACTS = {
   JOB_REGISTRY:   'ST30TRK58DT4P8CJQ8Y9D539X1VET78C63BNF0C9A.job-registry',
@@ -20,16 +20,6 @@ export const connectWallet = (onFinish: (userData: any) => void) => {
   if (userSession.isUserSignedIn()) {
     onFinish(userSession.loadUserData());
     return;
-  }
-
-  // Hiro's official connect.js bundle provides StacksConnect or showConnect globally.
-  const win = window as any;
-  const showConnect = win.StacksConnect?.showConnect || win.HiroConnect?.showConnect || win.showConnect;
-
-  if (typeof showConnect !== 'function') {
-      console.error("Critical: Stacks Connect library (connect.js) not found on window.");
-      alert("Leather Wallet connection failed: Please ensure the Leather extension is active and refresh the page.");
-      return;
   }
 
   showConnect({

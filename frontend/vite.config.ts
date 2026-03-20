@@ -7,4 +7,12 @@ export default defineConfig({
     define: {
         global: 'window',
     },
+    build: {
+        commonjsOptions: {
+            transformMixedEsModules: true,
+        },
+    },
+    optimizeDeps: {
+        include: ['@stacks/connect'],
+    },
 })
