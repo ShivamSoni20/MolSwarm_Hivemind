@@ -1,20 +1,22 @@
-import Database from 'better-sqlite3';
+import sqlite3 from 'sqlite3';
 import { WebSocketServer, WebSocket } from 'ws';
 
-const db = new Database('./payments.sqlite', { verbose: console.log });
+const db = new sqlite3.Database('./payments.sqlite');
 
-db.exec(`
-    CREATE TABLE IF NOT EXISTS x402_payments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        timestamp TEXT,
-        from_agent TEXT,
-        to_agent TEXT,
-        amount REAL,
-        token TEXT,
-        job_id TEXT,
-        tx_hash TEXT
-    )
-`);
+db.serialize(() => {
+    db.run(`
+        CREATE TABLE IF NOT EXISTS x402_payments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT,
+            from_agent TEXT,
+            to_agent TEXT,
+            amount REAL,
+            token TEXT,
+            job_id TEXT,
+            tx_hash TEXT
+        )
+    `);
+});
 
 export class PaymentLogger {
     private wss: WebSocketServer;
@@ -25,7 +27,6 @@ export class PaymentLogger {
 
         this.wss.on('connection', (ws) => {
             console.log("🟢 Client connected to Payment WebSocket");
-            // Optionally, send recent payments on connect if needed
         });
     }
 
@@ -44,8 +45,12 @@ export class PaymentLogger {
             INSERT INTO x402_payments (timestamp, from_agent, to_agent, amount, token, job_id, tx_hash)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `);
-        stmt.run(timestamp, from, to, amount, token, jobId, txHash);
         
+        stmt.run(timestamp, from, to, amount, token, jobId, txHash, (err: any) => {
+            if (err) console.error("Database log error:", err);
+        });
+        stmt.finalize();
+
         this.emitToFrontend({
             type: "payment",
             from: from,
@@ -58,8 +63,14 @@ export class PaymentLogger {
         });
     }
 
-    public getRecentPayments() {
-        const stmt = db.prepare(`SELECT * FROM x402_payments ORDER BY id DESC LIMIT 50`);
-        return stmt.all();
+    public getRecentPayments(callback: (rows: any[]) => void) {
+        db.all(`SELECT * FROM x402_payments ORDER BY id DESC LIMIT 50`, [], (err, rows) => {
+           if (err) {
+               console.error("Fetch DB error:", err);
+               callback([]);
+           } else {
+               callback(rows);
+           }
+        });
     }
 }

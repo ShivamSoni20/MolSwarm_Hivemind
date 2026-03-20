@@ -2,6 +2,9 @@
   "name": "molswarm-hivemind",
   "version": "1.0.0",
   "description": "MolSwarm: Stacks x402 AI Agent Economy",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "swarm:start": "ts-node swarm/orchestrator.ts",
     "demo:seed": "ts-node demo/seed-testnet.ts",
@@ -14,12 +17,19 @@
     "@stacks/network": "^6.0.0",
     "@stacks/auth": "^6.0.0",
     "openai": "^4.0.0",
-    "better-sqlite3": "^9.0.0",
-    "ws": "^8.0.0",
-    "dotenv": "^16.0.0",
-    "node-fetch": "^3.0.0",
-    "express": "^4.18.0",
-    "ts-node": "^10.9.1",
+    "sqlite3": "^5.1.7",
+    "ws": "^8.16.0",
+    "dotenv": "^16.4.5",
+    "node-fetch": "^3.3.2",
+    "express": "^4.18.3",
+    "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "@types/ws": "^8.5.10",
+    "@types/node-fetch": "^2.6.11",
+    "@types/sqlite3": "^3.1.11",
+    "node-gyp": "^10.0.1"
   }
 }

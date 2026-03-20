@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect } from 'react';
 import { getOpenJobs, subscribeToContractEvents, CONTRACTS } from '../utils/stacks-api';
 

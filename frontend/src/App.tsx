@@ -1,3 +1,4 @@
+"use client"
 import { Brain, Cpu, Database, LayoutDashboard, Plus, Terminal, Activity, X, Globe, FileCode, HardDrive, Github, Twitter, MessageSquare, ExternalLink, ShieldCheck, ChevronRight } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { MetricsDashboard } from './components/MetricsDashboard';

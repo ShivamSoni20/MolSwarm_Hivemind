@@ -1,30 +1,36 @@
+"use client"
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface PaymentEvent {
   id: string;
   timestamp: string;
-  from_agent: string;
-  to_agent: string;
+  from: string;
+  to: string;
   amount: number;
   token: string;
-  job_id: string;
+  jobId: string;
+  type: string;
 }
 
 const PaymentWaterfall: React.FC = () => {
   const [payments, setPayments] = useState<PaymentEvent[]>([]);
+  const [connected, setConnected] = useState(false);
 
   useEffect(() => {
     let ws: WebSocket;
-    
-    const connectWS = () => {
+    let reconnectTimeout: NodeJS.Timeout;
+
+    const connect = () => {
       ws = new WebSocket(process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080');
+      
+      ws.onopen = () => setConnected(true);
       
       ws.onmessage = (event) => {
         try {
-          const newPayment = JSON.parse(event.data);
-          if (newPayment.type === "payment") {
-             setPayments(p => [newPayment, ...p].slice(0, 20));
+          const payment = JSON.parse(event.data);
+          if (payment.type === "payment") {
+            setPayments(prev => [payment, ...prev].slice(0, 20));
           }
         } catch (e) {
           console.error("Payment parse error", e);
@@ -32,13 +38,18 @@ const PaymentWaterfall: React.FC = () => {
       };
       
       ws.onclose = () => {
-        console.log("WebSocket Disconnected. Reconnecting in 3s...");
-        setTimeout(connectWS, 3000);
+        setConnected(false);
+        reconnectTimeout = setTimeout(connect, 3000);
       };
-    };
+      
+      ws.onerror = () => ws.close();
+    }
 
-    connectWS();
-    return () => { if (ws) ws.close(); };
+    connect();
+    return () => {
+      clearTimeout(reconnectTimeout);
+      ws?.close();
+    }
   }, []);
 
   return (
@@ -58,9 +69,9 @@ const PaymentWaterfall: React.FC = () => {
             >
               <div className="flex items-center gap-2">
                 <span className="text-gray-400">{pay.timestamp}</span>
-                <span className="text-purple-400 font-semibold">{pay.from_agent}</span>
+                <span className="text-purple-400 font-semibold">{pay.from}</span>
                 <span className="text-gray-500">→</span>
-                <span className="text-blue-400 font-semibold">{pay.to_agent}</span>
+                <span className="text-blue-400 font-semibold">{pay.to}</span>
               </div>
               <div className="flex items-center gap-2 font-mono">
                 <span className="text-emerald-400">+{pay.amount}</span>
