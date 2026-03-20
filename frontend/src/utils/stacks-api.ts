@@ -1,6 +1,6 @@
 import { standardPrincipalCV, cvToHex } from '@stacks/transactions';
 import { STACKS_TESTNET } from '@stacks/network';
-import { AppConfig, UserSession, showConnect } from '@stacks/connect';
+import { AppConfig, UserSession, connect } from '@stacks/connect';
 
 export const CONTRACTS = {
   JOB_REGISTRY:   'ST30TRK58DT4P8CJQ8Y9D539X1VET78C63BNF0C9A.job-registry',
@@ -16,13 +16,16 @@ export const NETWORK = STACKS_TESTNET;
 const appConfig = new AppConfig(['store_write', 'publish_data']);
 export const userSession = new UserSession({ appConfig });
 
-export const connectWallet = (onFinish: (userData: any) => void) => {
+export const connectWallet = async (onFinish: (userData: any) => void) => {
   if (userSession.isUserSignedIn()) {
     onFinish(userSession.loadUserData());
     return;
   }
 
-  showConnect({
+  // Use the v8.x `connect()` API instead of `showConnect()`.
+  // showConnect is undefined at runtime due to a circular dependency bug
+  // in @stacks/connect@8.2.6, but connect() works correctly.
+  await (connect as any)({
     appDetails: {
       name: 'MolSwarm Hivemind',
       icon: window.location.origin + '/logo.png',
