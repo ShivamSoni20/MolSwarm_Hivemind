@@ -18,7 +18,7 @@ const AgentCard: React.FC<AgentProps> = ({ name, avatar, agentWallet, fallbackSb
       const liveStats = await getAgentStats(agentWallet);
       if (liveStats && liveStats.value) {
           // parse CV Data
-          setStats(prev => ({ ...prev, reputation: 5, skills: ['automation', 'stx'] }));
+          setStats((prev: any) => ({ ...prev, reputation: 5, skills: ['automation', 'stx'] }));
       }
     };
     fetchStats();
@@ -60,7 +60,7 @@ const AgentCard: React.FC<AgentProps> = ({ name, avatar, agentWallet, fallbackSb
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        {stats.skills.map(skill => (
+        {stats.skills.map((skill: string) => (
           <span key={skill} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-xs font-semibold text-gray-300">
             {skill}
           </span>
