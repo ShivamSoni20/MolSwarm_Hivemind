@@ -47,21 +47,38 @@ function App() {
 
     const [newJob, setNewJob] = useState({ title: '', budget: '', description: '', repoLink: '', docsLink: '', token: 'sBTC' });
 
-    // Stacks job placeholders
-    const jobs = [
+    // Stacks job state
+    const [jobs, setJobs] = useState([
         { id: '101', title: 'Data Scraping', bounty: '0.05 sBTC', status: 'In Progress', worker: '0xPython...', description: 'Extract real-time market data from multiple L2s.' },
         { id: '102', title: 'Logo Design', bounty: '15 USDCx', status: 'Open', worker: '-', description: 'Design a professional vector logo for a web3 project.' },
         { id: '103', title: 'Stacks Contract Audit', bounty: '0.02 sBTC', status: 'Completed', worker: '0xQuick...', description: 'Audit Clarity smart contracts.' },
-    ];
+    ]);
 
     const handlePostJob = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!account) return alert("Please connect wallet first");
         
-        // Simulating leather/xverse contract call modal integration
-        alert("Proceeding to sign Clarity Contract 'post-job' with Leather Wallet...");
+        const newPostedJob = {
+            id: Math.floor(Math.random() * 1000).toString(),
+            title: newJob.title,
+            bounty: `${newJob.budget} ${newJob.token}`,
+            status: 'Open',
+            worker: '-',
+            description: newJob.description
+        };
+
+        setJobs([newPostedJob, ...jobs]);
         setShowPostModal(false);
         setNewJob({ title: '', budget: '', description: '', repoLink: '', docsLink: '', token: 'sBTC' });
+
+        // Simulate agent "voting"/bidding and accepting the contract after 4 seconds
+        setTimeout(() => {
+            setJobs(currentJobs => currentJobs.map(j => 
+                j.id === newPostedJob.id 
+                ? { ...j, worker: 'Agent_PythonPro', status: 'In Progress' } 
+                : j
+            ));
+        }, 4000);
     };
 
     const handleReleasePayment = async (jobId: string) => {

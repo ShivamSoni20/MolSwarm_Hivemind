@@ -59,13 +59,21 @@ const AgentCard: React.FC<AgentProps> = ({ name, avatar, agentWallet, fallbackSb
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        {stats.skills.map((skill: string) => (
-          <span key={skill} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-xs font-semibold text-gray-300">
-            {skill}
-          </span>
-        ))}
-        {stats.skills.length === 0 && <span className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-xs font-semibold text-gray-500">Retrieving on-chain...</span>}
+      <div className="mt-4 flex flex-wrap gap-2 items-center justify-between w-full">
+        <div className="flex flex-wrap gap-2">
+            {stats.skills.map((skill: string) => (
+              <span key={skill} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-xs font-semibold text-gray-300">
+                {skill}
+              </span>
+            ))}
+            {stats.skills.length === 0 && <span className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-xs font-semibold text-gray-500">Retrieving on-chain...</span>}
+        </div>
+        <button 
+            onClick={() => setStats((prev: any) => ({ ...prev, reputation: prev.reputation + 1 }))}
+            className="px-4 py-1.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-black text-xs uppercase tracking-widest rounded-lg shadow-lg active:scale-95 transition-all"
+        >
+            Vote +1
+        </button>
       </div>
     </div>
   );
