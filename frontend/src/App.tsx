@@ -102,9 +102,9 @@ function App() {
                         </button>
                         <button
                             onClick={() => connectWallet(setAccount)}
-                            className="px-12 py-5 bg-white/5 hover:bg-white/10 text-white font-black rounded-2xl border border-white/10 transition-all text-lg"
+                            className="px-12 py-5 bg-orange-600/10 hover:bg-orange-600/20 text-orange-400 font-black rounded-2xl border-2 border-orange-500/50 hover:border-orange-500 transition-all text-lg shadow-[0_0_30px_rgba(249,115,22,0.2)] hover:shadow-[0_0_50px_rgba(249,115,22,0.4)] active:scale-95"
                         >
-                            {account ? "Connected" : "Connect Stacks Wallet"}
+                            {account ? "✓ STACKS CONNECTED" : "Connect Stacks Wallet"}
                         </button>
                     </div>
 
@@ -169,9 +169,11 @@ function App() {
                 <div className="pt-6 border-t border-white/10">
                     <button
                         onClick={() => !account ? connectWallet(setAccount) : setAccount(null)}
-                        className="w-full text-center px-4 py-2 border border-white/20 rounded-xl hover:bg-white/10 font-bold text-sm"
+                        className={`w-full text-center px-4 py-3 rounded-xl font-bold text-sm transition-all ${
+                            account ? 'bg-white/5 text-slate-400' : 'bg-orange-500/10 text-orange-400 border border-orange-500/30 hover:bg-orange-500/20'
+                        }`}
                     >
-                        {account ? 'Disconnect' : 'Connect Leather'}
+                        {account ? 'Disconnect Wallet' : 'Connect Leather'}
                     </button>
                 </div>
             </aside>
