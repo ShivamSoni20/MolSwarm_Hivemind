@@ -1,9 +1,6 @@
-import { standardPrincipalCV } from '@stacks/transactions';
+import { standardPrincipalCV, cvToHex } from '@stacks/transactions';
 import { STACKS_TESTNET } from '@stacks/network';
-import { AppConfig, UserSession, showConnect } from '@stacks/connect';
-
-// Robust export for Vite production builds to prevent "TypeError: showConnect is not a function"
-const safeShowConnect = typeof showConnect === 'function' ? showConnect : (showConnect as any).default;
+import * as StacksConnect from '@stacks/connect';
 
 export const CONTRACTS = {
   JOB_REGISTRY:   'ST30TRK58DT4P8CJQ8Y9D539X1VET78C63BNF0C9A.job-registry',
@@ -16,8 +13,8 @@ export const CONTRACTS = {
 export const STACKS_API = 'https://api.testnet.hiro.so';
 export const NETWORK = STACKS_TESTNET;
 
-const appConfig = new AppConfig(['store_write', 'publish_data']);
-export const userSession = new UserSession({ appConfig });
+const appConfig = new StacksConnect.AppConfig(['store_write', 'publish_data']);
+export const userSession = new StacksConnect.UserSession({ appConfig });
 
 export const connectWallet = (onFinish: (userData: any) => void) => {
   if (userSession.isUserSignedIn()) {
@@ -25,11 +22,22 @@ export const connectWallet = (onFinish: (userData: any) => void) => {
     return;
   }
 
-  // Use the safe wrapper
-  const connectFn = typeof showConnect === 'function' ? showConnect : (showConnect as any).default;
+  // Use the namespaced import for maximum safety in bundled production code
+  const connectFn = StacksConnect.showConnect;
   
   if (typeof connectFn !== 'function') {
-      console.error("Critical: Stacks Connect library failed to load correctly.");
+      console.error("Critical: Stacks Connect library failed to load as a function using namespaced import.");
+      // Fallback for some bundler configurations
+      const fallbackFn = (StacksConnect as any).default?.showConnect || (StacksConnect as any).showConnect;
+      if (typeof fallbackFn === 'function') {
+          fallbackFn({
+            appDetails: { name: 'MolSwarm Hivemind', icon: window.location.origin + '/logo.png' },
+            userSession,
+            onFinish: () => onFinish(userSession.loadUserData()),
+          });
+          return;
+      }
+      alert("Leather Wallet connection failed: Bundler compatibility issue.");
       return;
   }
 
@@ -56,15 +64,17 @@ export async function getOpenJobs(): Promise<any[]> {
 export async function getAgentStats(agentWallet: string): Promise<any> {
     try {
         const [contractAddress, contractName] = CONTRACTS.AGENT_REGISTRY.split('.');
+        // Use cvToHex to format arguments correctly for the raw fetch call (400 fix)
         const res = await fetch(`${STACKS_API}/v2/contracts/call-read/${contractAddress}/${contractName}/get-agent-stats`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                sender: agentWallet,
-                arguments: [standardPrincipalCV(agentWallet)]
+                sender: contractAddress,
+                arguments: [cvToHex(standardPrincipalCV(agentWallet))]
             })
         });
-        return await res.json();
+        const data = await res.json();
+        return data;
     } catch (e) {
         return { name: "Unknown", skills: "", jobs_completed: 0, total_earned: 0, reputation_score: 0 };
     }
