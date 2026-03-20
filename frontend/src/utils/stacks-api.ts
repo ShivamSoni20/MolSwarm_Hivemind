@@ -1,7 +1,7 @@
 import { standardPrincipalCV } from '@stacks/transactions';
 import { STACKS_TESTNET } from '@stacks/network';
+import { AppConfig, UserSession, showConnect } from '@stacks/connect';
 
-// We'll use the suggested fetchCallReadOnlyFunction or just direct API calls for read-only to be extremely safe during hackathon deploy
 export const CONTRACTS = {
   JOB_REGISTRY:   'ST30TRK58DT4P8CJQ8Y9D539X1VET78C63BNF0C9A.job-registry',
   ESCROW_VAULT:   'ST30TRK58DT4P8CJQ8Y9D539X1VET78C63BNF0C9A.x402-escrow-vault',
@@ -13,14 +13,19 @@ export const CONTRACTS = {
 export const STACKS_API = 'https://api.testnet.hiro.so';
 export const NETWORK = STACKS_TESTNET;
 
-import { AppConfig, UserSession, showConnect } from '@stacks/connect';
-
 const appConfig = new AppConfig(['store_write', 'publish_data']);
 export const userSession = new UserSession({ appConfig });
 
 export const connectWallet = (onFinish: (userData: any) => void) => {
   if (userSession.isUserSignedIn()) {
     onFinish(userSession.loadUserData());
+    return;
+  }
+
+  // Safety check to ensure showConnect is defined as a function
+  if (typeof showConnect !== 'function') {
+    console.error('showConnect is not a function. Check @stacks/connect version.');
+    alert('Wallet connection failed: showConnect library issue.');
     return;
   }
 
@@ -67,7 +72,6 @@ export async function getOpenJobs(): Promise<any[]> {
 export async function getAgentStats(agentWallet: string): Promise<any> {
     try {
         const [contractAddress, contractName] = CONTRACTS.AGENT_REGISTRY.split('.');
-        // Using direct fetch for read-only to bypass versioning issues with callReadOnlyFunction on Vercel
         const res = await fetch(`${STACKS_API}/v2/contracts/call-read/${contractAddress}/${contractName}/get-agent-stats`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
