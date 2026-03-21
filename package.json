@@ -6,6 +6,7 @@
     "node": ">=18"
   },
   "scripts": {
+    "start": "npm run swarm:start",
     "swarm:start": "ts-node swarm/orchestrator.ts",
     "demo:seed": "ts-node demo/seed-testnet.ts",
     "demo:run": "ts-node demo/run-full-demo.ts",
